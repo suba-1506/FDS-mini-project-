@@ -1,0 +1,140 @@
+import tkinter as tk
+from tkinter import messagebox
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+
+def heart_attack_risk(age, gender, systolic_bp, total_chol, hdl_chol, smoking, diabetes, physical_activity, family_history, obesity):
+
+    if gender == 'male':
+        score = 0
+        if age >= 45:
+            score += 1
+        if systolic_bp >= 140:
+            score += 1
+        if total_chol >= 240:
+            score += 1
+        if hdl_chol < 40:
+            score += 1
+        if smoking:
+            score += 1
+        if diabetes:
+            score += 1
+        if family_history:
+            score += 1
+        if obesity:
+            score += 1
+        if physical_activity == False:
+            score += 1
+
+
+    elif gender == 'female':
+        score = 0
+        if age >= 55:
+            score += 1
+        if systolic_bp >= 140:
+            score += 1
+        if total_chol >= 240:
+            score += 1
+        if hdl_chol < 50:
+            score += 1
+        if smoking:
+            score += 1
+        if diabetes:
+            score += 1
+        if family_history:
+            score += 1
+        if obesity:
+            score += 1
+        if physical_activity == False:
+            score += 1
+
+
+    risk_percentage = (score / 10) * 100
+    return round(risk_percentage, 2)
+
+def plot_risk_graph(risk_percentage):
+
+    labels = ['Heart Attack Risk']
+    values = [risk_percentage]
+
+    fig, ax = plt.subplots(figsize=(6, 4))
+    ax.bar(labels, values, color='red')
+
+    ax.set_title(f'10-Year Heart Attack Risk: {risk_percentage}%')
+    ax.set_ylabel('Risk Percentage (%)')
+    ax.set_ylim(0, 100)
+
+
+    for i, v in enumerate(values):
+        ax.text(i, v + 5, f'{v}%', ha='center', va='bottom', fontweight='bold')
+
+    canvas = FigureCanvasTkAgg(fig, master=window)  # A tk.DrawingArea
+    canvas.draw()
+    canvas.get_tk_widget().grid(row=8, column=0, columnspan=4)
+
+def on_calculate():
+    try:
+
+        age = int(entry_age.get())
+        gender = gender_var.get()
+        systolic_bp = int(entry_systolic_bp.get())
+        total_chol = int(entry_total_chol.get())
+        hdl_chol = int(entry_hdl_chol.get())
+        smoking = smoking_var.get() == 'Yes'
+        diabetes = diabetes_var.get() == 'Yes'
+        physical_activity = physical_activity_var.get() == 'Yes'
+        family_history = family_history_var.get() == 'Yes'
+        obesity = obesity_var.get() == 'Yes'
+
+        risk = heart_attack_risk(age, gender, systolic_bp, total_chol, hdl_chol, smoking, diabetes, physical_activity, family_history, obesity)
+        result_label.config(text=f"Estimated 10-Year Heart Attack Risk: {risk}%")
+        plot_risk_graph(risk)
+    except ValueError:
+        messagebox.showerror("Input Error", "Please enter valid inputs.")
+window = tk.Tk()
+window.title("Heart Attack Risk Calculator")
+tk.Label(window, text="Age:").grid(row=0, column=0)
+entry_age = tk.Entry(window)
+entry_age.grid(row=0, column=1)
+tk.Label(window, text="Gender:").grid(row=1, column=0)
+gender_var = tk.StringVar()
+gender_var.set("male")
+tk.Radiobutton(window, text="Male", variable=gender_var, value="male").grid(row=1, column=1)
+tk.Radiobutton(window, text="Female", variable=gender_var, value="female").grid(row=1, column=2)
+tk.Label(window, text="Systolic BP:").grid(row=2, column=0)
+entry_systolic_bp = tk.Entry(window)
+entry_systolic_bp.grid(row=2, column=1)
+tk.Label(window, text="Total Cholesterol:").grid(row=3, column=0)
+entry_total_chol = tk.Entry(window)
+entry_total_chol.grid(row=3, column=1)
+tk.Label(window, text="HDL Cholesterol:").grid(row=4, column=0)
+entry_hdl_chol = tk.Entry(window)
+entry_hdl_chol.grid(row=4, column=1)
+tk.Label(window, text="Do you smoke?").grid(row=5, column=0)
+smoking_var = tk.StringVar()
+smoking_var.set("No")
+tk.Radiobutton(window, text="Yes", variable=smoking_var, value="Yes").grid(row=5, column=1)
+tk.Radiobutton(window, text="No", variable=smoking_var, value="No").grid(row=5, column=2)
+tk.Label(window, text="Do you have diabetes?").grid(row=6, column=0)
+diabetes_var = tk.StringVar()
+diabetes_var.set("No")
+tk.Radiobutton(window, text="Yes", variable=diabetes_var, value="Yes").grid(row=6, column=1)
+tk.Radiobutton(window, text="No", variable=diabetes_var, value="No").grid(row=6, column=2)
+
+tk.Label(window, text="Are you physically active?").grid(row=7, column=0)
+physical_activity_var = tk.StringVar()
+physical_activity_var.set("Yes")
+tk.Radiobutton(window, text="Yes", variable=physical_activity_var, value="Yes").grid(row=7, column=1)
+tk.Radiobutton(window, text="No", variable=physical_activity_var, value="No").grid(row=7, column=2)
+obesity_var = tk.StringVar()
+family_history_var = tk.StringVar()
+tk.Label(window, text="Are you obese?").grid(row=8, column=0)
+tk.Radiobutton(window, text="Yes", variable=obesity_var, value="Yes").grid(row=8, column=1)
+tk.Radiobutton(window, text="No", variable=obesity_var, value="No").grid(row=8, column=2)
+tk.Label(window, text="Do you have a family history of heart disease?").grid(row=9, column=0)
+tk.Radiobutton(window, text="Yes", variable=family_history_var, value="Yes").grid(row=9, column=1)
+tk.Radiobutton(window, text="No", variable=family_history_var, value="No").grid(row=9, column=2)
+tk.Button(window, text="Calculate Risk", command=on_calculate).grid(row=10, column=0, columnspan=3)
+result_label = tk.Label(window, text="Estimated 10-Year Heart Attack Risk: ")
+result_label.grid(row=11, column=0, columnspan=3)
+window.mainloop()
